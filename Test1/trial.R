@@ -16,13 +16,13 @@ score.test <- score[1:2,]
 
 score.train <-  cbind(score.train[, "rank"],
                       score.train[, "math"],
-                      score.train[, "english"])
+                      score.train[, "japanese"])
 score.train <- as.data.frame(score.train)
 
 
 score.test <-  cbind(score.test[, "rank"],
                      score.test[, "math"],
-                     score.test[, "english"])
+                     score.test[, "japanese"])
 score.test <- as.data.frame(score.test)
 
 res.lda <- lda(V1 ~ V2 + V3, data=score.train)

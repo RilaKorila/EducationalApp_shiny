@@ -10,7 +10,8 @@
 library(shiny)
 library(MASS)
 library(readr)
-score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv")
+library(ggplot2)
+score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv", header = TRUE)
 
 # Define server logic required to draw a histogram
 shinyServer(
@@ -25,9 +26,9 @@ shinyServer(
         # Add a little noise to the cars data
         x <- score[, input$xlabel]
         y <- score[, input$ylabel]
-        plot(x, y, xlim = c(0,100), ylim = c(0, 100),
-             col = c("red", "#58FAD0"))
-        # ggplot(score, aes(x, y,alpha = 1.0)) + geom_point() 
+        # plot(x, y, xlim = c(0,100), ylim = c(0, 100),
+          #   col = c("red", "#58FAD0"))
+        ggplot(score, aes(x, y,alpha = 1.0, color = rank)) + geom_point() 
         
     })
     
@@ -36,16 +37,8 @@ shinyServer(
         score.train <- score[-1:-2,]
         score.test <- score[1:2,]
         #作成した変数名x.nameにinput$xlabelを格納
-        # x.name <- "tmp"
-        # y.name <- "tmp"
-        # assign(x.name, input$xlabel)
-        # assign(y.name, input$ylabel)
         x.name <- input$xlabel
         y.name <- input$ylabel
-        # x.train <- score.train[, input$xlabel]
-        # y.train <- score.train[, input$ylabel]
-        # x.test <- score.test[, input$xlabel]
-        # y.test <- score.test[, input$ylabel]
         
         score.train <-  cbind(score.train[, "rank"],
                               score.train[, x.name],
@@ -81,27 +74,38 @@ shinyServer(
     output$plot <- renderPlot({
         if (input$boundary) {
             boundaryData.a.b <- boundaryData()
-            drawPlot()
-            abline(boundaryData.a.b[1], boundaryData.a.b[2])
+            drawPlot() # + 直線
+            
+            # abline(boundaryData.a.b[1], boundaryData.a.b[2])
                # geom_abline(intercept = boundaryData.a.b[1],
                 #            slope = boundaryData.a.b[2])
         }
        else{
-           drawPlot()
-           ldaExe()
+           p <- drawPlot()
+           ldaExe() # pを表示する前に入れないとggplotが消える
+           p
        }
     })
     
-    output$dot_info <- renderPrint({
-        cat("Click: \n")
-        str(input$plot_click)
+    # return Name of the x, y
+    xvar <- reactive({
+        switch(input$xlabel, math = "math", english = "english", japanese = "japanese")
+    })
+    
+    yvar <- reactive({
+        switch(input$ylabel, math = "math", english = "english", japanese = "japanese")
+    })
+    
+    output$click_info <- renderPrint({
+        # Select just the nearest point within 10 pixels of the click
+        res <- nearPoints(score, input$plot_click, xvar(), yvar(), threshold = 10, maxpoints = 1)
+        res
         # 出力をどうにかしないといけない
-        paste(input$plot_click)
+        #spaste("x=", input$plot_click$x, "\ny=", input$plot_click$y)
     })
     
     output$accuracy <- renderText({
         acc <-  ldaExe()
-        
     })
     
     

@@ -19,7 +19,7 @@ shinyUI(fluidPage(
     sidebarLayout(
         # Show a plot of the generated distribution
         mainPanel(
-            #click系はggplotでは使用不可
+            #clickId, hoverIdはggplotでは使用不可
             plotOutput("plot", click = "plot_click"),
             # iPadで使うならhoverできない
             
@@ -29,8 +29,10 @@ shinyUI(fluidPage(
             
             #textInput("textIn01",label="Input"),
             hr(),                               
-            p("Detail"),
-            textOutput("dot_info")
+            column(width = 10,
+                   h4("Points near click"),
+                   verbatimTextOutput("click_info")
+            )
         ),
         
         # Show slidebar
