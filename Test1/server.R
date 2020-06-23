@@ -22,6 +22,7 @@ shinyServer(
     # 散布図を描画する関数
     # 中の引数に変更がある時以外はキャッシュした値を返す
     drawPlot <- reactive({
+        
         # input$newplot
         # Add a little noise to the cars data
         x <- score[, input$xlabel]
@@ -32,6 +33,26 @@ shinyServer(
         
     })
     
+    drawPlot2 <- reactive({ # Exculsive対応
+        # Plot the kept and excluded points as two separate data sets
+        keep    <- score[ vals$keeprows, , drop = FALSE]
+        exclude <- score[!vals$keeprows, , drop = FALSE]
+        
+        ggplot(keep, aes(xval(), yval(), color = rank)) + 
+            geom_point() +
+            geom_point(data = exclude, shape = 21, fill = NA, color = "white", alpha = 0.25)
+    })
+    
+    # Toggle points that are clicked (DeleteボタンがTrueのときのみ)
+    observeEvent(input$plot_click, {
+        if (input$deleteMode) {
+            res <- nearPoints(score, input$plot_click, allRows = TRUE)
+            vals$keeprows <- xor(vals$keeprows, res$selected_)
+        }
+    })
+    
+    # 線形判別の計算
+    # 返り値：線形判別後の分類精度accuracy
     ldaExe <- reactive({
         # データの準備 : テストデータは1,2行目
         score.train <- score[-1:-2,]
@@ -55,7 +76,6 @@ shinyServer(
         pre <- predict(lda.model, score.test)$class
         
         tbl <- table(pre, score.test$V1)
-        
         # lda: 同じ変数を指定するとWarning..variables are collinea発生r
         
         sum <- sum(rowSums(tbl))
@@ -63,8 +83,8 @@ shinyServer(
         accuracy <- (correct / sum) * 100
     })
     
-    # CheckBoxにチェックしたまま変更すると値がNULLになる、、
-    boundaryData <- reactive({
+    # ActionButtonが押されて初めてboundaryのデータが更新される
+    boundaryData <- eventReactive(input$boundary, {
         a <- input$intercept
         b <- input$slope
         a.b <- c(a, b)
@@ -74,11 +94,8 @@ shinyServer(
     output$plot <- renderPlot({
         if (input$boundary) {
             boundaryData.a.b <- boundaryData()
-            drawPlot() # + 直線
-            
-            # abline(boundaryData.a.b[1], boundaryData.a.b[2])
-               # geom_abline(intercept = boundaryData.a.b[1],
-                #            slope = boundaryData.a.b[2])
+            drawPlot() + 
+                geom_abline(intercept = boundaryData.a.b[1], slope = boundaryData.a.b[2])
         }
        else{
            p <- drawPlot()
@@ -91,7 +108,6 @@ shinyServer(
     xvar <- reactive({
         switch(input$xlabel, math = "math", english = "english", japanese = "japanese")
     })
-    
     yvar <- reactive({
         switch(input$ylabel, math = "math", english = "english", japanese = "japanese")
     })
@@ -100,20 +116,17 @@ shinyServer(
         # Select just the nearest point within 10 pixels of the click
         res <- nearPoints(score, input$plot_click, xvar(), yvar(), threshold = 10, maxpoints = 1)
         res
-        # 出力をどうにかしないといけない
-        #spaste("x=", input$plot_click$x, "\ny=", input$plot_click$y)
     })
     
     output$accuracy <- renderText({
         acc <-  ldaExe()
     })
     
-    
-    output$xlabel_get <- renderPrint({
-        paste ("you have selected ", input$xlabel)
-    })
-    output$ylabel_get <- renderPrint({
-        paste ("you have selected ", input$ylabel)
-    })
+    # For storing which rows have been excluded(排除された行を記録)
+    values <- reactiveValues(
+        # もしかしてExcludeできるのはscore.trainの方だけ？
+        keeprows = rep(TRUE, nrow(score))
+    ) 
 
+    
 })

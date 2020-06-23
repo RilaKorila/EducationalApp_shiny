@@ -62,11 +62,12 @@ shinyUI(fluidPage(
             # 切片入力
             numericInput("intercept", label = "切片", value = 1, 
                          min = 1, max = 100, step = 1),
-            checkboxInput("boundary", "Let's draw!", FALSE),
+            actionButton("boundary", "Let's draw!"),
+            #actionButton("HideBoundary", "Hide"),
             hr(),    
             # ボタン
             h3("データの削除", style = "color:skyblue"),
-            actionButton("deletedData", label = "Delete"),
+            actionButton("deleteMode", label = "Delete"),
             )
         
     )
