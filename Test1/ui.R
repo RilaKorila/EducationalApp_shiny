@@ -52,7 +52,18 @@ shinyUI(fluidPage(
             hr(),    
             # 精度の表示
             h4("精度"),
-            textOutput("accuracy"),
+            tableOutput("accuracy"),
+            # tags$table(
+            #     tags$tr(
+            #         tags$th("pre"), tags$th("real")
+            #     ),
+            #     tags$tr(
+            #         textOutput("tbl11"), tags$th("tbl12")
+            #     ),
+            #     tags$tr(
+            #         tags$th("tbl21"), tags$th("tbl22")
+            #     ),
+            # ),
             
             hr(),    
             h3("境界線描画", style = "color:skyblue"),
@@ -63,11 +74,11 @@ shinyUI(fluidPage(
             numericInput("intercept", label = "切片", value = 1, 
                          min = 1, max = 100, step = 1),
             actionButton("boundary", "Let's draw!"),
-            #actionButton("HideBoundary", "Hide"),
+            actionButton("HideBoundary", "Hide"),
             hr(),    
             # ボタン
             h3("データの削除", style = "color:skyblue"),
-            actionButton("deleteMode", label = "Delete"),
+            checkboxInput("deleteMode", label = "Delete", FALSE),
             )
         
     )

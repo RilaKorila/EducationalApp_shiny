@@ -28,5 +28,12 @@ score.test <- as.data.frame(score.test)
 res.lda <- lda(V1 ~ V2 + V3, data=score.train)
 pre <- predict(res.lda, score.test)$class
 
-table(pre, score.test$V1)
+t <- table(pre, score.test$V1)
 
+
+# - - - 3dのplotについて - - - 
+plot3d(score)
+plot3d(score$math, score$english, score$japanese, col = "red")
+plot3d(score$math, score$english, score$japanese, col = as.integer(score$rank))
+# WebGLに保存するとHTML形式で結果のみ表示できるらしい
+ # writeWebGL(width=500, height=550)

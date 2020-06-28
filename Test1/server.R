@@ -22,14 +22,12 @@ shinyServer(
     # 散布図を描画する関数
     # 中の引数に変更がある時以外はキャッシュした値を返す
     drawPlot <- reactive({
-        
-        # input$newplot
         # Add a little noise to the cars data
         x <- score[, input$xlabel]
         y <- score[, input$ylabel]
-        # plot(x, y, xlim = c(0,100), ylim = c(0, 100),
-          #   col = c("red", "#58FAD0"))
-        ggplot(score, aes(x, y,alpha = 1.0, color = rank)) + geom_point() 
+        # plot(x, y, xlim = c(0,100), ylim = c(0, 100),col = c("red", "#58FAD0"))
+        ggplot(score, aes(x, y, color = rank)) +
+            geom_point() 
         
     })
     
@@ -53,6 +51,7 @@ shinyServer(
     
     # 線形判別の計算
     # 返り値：線形判別後の分類精度accuracy
+    # 返り値2: table
     ldaExe <- reactive({
         # データの準備 : テストデータは1,2行目
         score.train <- score[-1:-2,]
@@ -75,12 +74,12 @@ shinyServer(
         lda.model <- lda(V1 ~ V2 + V3, data=score.train)
         pre <- predict(lda.model, score.test)$class
         
-        tbl <- table(pre, score.test$V1)
-        # lda: 同じ変数を指定するとWarning..variables are collinea発生r
+        tbl <- table(score.test$V1, pre)
+        # lda: 同じ変数を指定するとWarning..variables are collinear発生
         
-        sum <- sum(rowSums(tbl))
-        correct <- tbl[1,1] + tbl[2,2]
-        accuracy <- (correct / sum) * 100
+        #sum <- sum(rowSums(tbl))
+        #correct <- tbl[1,1] + tbl[2,2]
+        #accuracy <- (correct / sum) * 100
     })
     
     # ActionButtonが押されて初めてboundaryのデータが更新される
@@ -118,15 +117,37 @@ shinyServer(
         res
     })
     
-    output$accuracy <- renderText({
-        acc <-  ldaExe()
+    output$accuracy <- renderTable({
+        tbl <-  ldaExe()
+        tbl <- as.data.frame(tbl)
+        colnames(tbl) <- c("正解ラベル","予測ラベル", "データ数")
+        tbl
     })
     
+    # # tableシリーズ
+    # if(0){
+    # output$tbl11 <- renderPrint({
+    #     tbl <-  ldaExe()
+    #     tbl[1,1]
+    # })
+    # output$tbl12 <- renderPrint({
+    #     tbl <-  ldaExe()
+    #     tbl[1,2]
+    # })
+    # output$tbl21 <- renderPrint({
+    #     tbl <-  ldaExe()
+    #     tbl[2,1]
+    # })
+    # output$tbl22 <- renderPrint({
+    #     tbl <-  ldaExe()
+    #     tbl[2, 2]
+    # })
+    # }
     # For storing which rows have been excluded(排除された行を記録)
-    values <- reactiveValues(
+    #values <- reactiveValues(
         # もしかしてExcludeできるのはscore.trainの方だけ？
-        keeprows = rep(TRUE, nrow(score))
-    ) 
+     #   keeprows = rep(TRUE, nrow(score))
+    #) 
 
     
 })
