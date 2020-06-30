@@ -1,5 +1,7 @@
 library(readr)
 library(MASS)
+library(ggplot2)
+library(plotly)
 score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv")
 
 
@@ -30,6 +32,10 @@ pre <- predict(res.lda, score.test)$class
 
 t <- table(pre, score.test$V1)
 
+# パッケージplotlyを使ってみる
+g <- ggplot(score, aes(math, english, color = rank)) +
+  geom_point() 
+ggplotly(g)
 
 # - - - 3dのplotについて - - - 
 plot3d(score)

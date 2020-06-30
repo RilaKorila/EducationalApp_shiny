@@ -11,6 +11,7 @@ library(shiny)
 library(MASS)
 library(readr)
 library(ggplot2)
+
 score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv", header = TRUE)
 
 # Define server logic required to draw a histogram
@@ -36,17 +37,37 @@ shinyServer(
         keep    <- score[ vals$keeprows, , drop = FALSE]
         exclude <- score[!vals$keeprows, , drop = FALSE]
         
-        ggplot(keep, aes(xval(), yval(), color = rank)) + 
-            geom_point() +
-            geom_point(data = exclude, shape = 21, fill = NA, color = "white", alpha = 0.25)
+        x.keep <- keep[, xvar()]
+        y.keep <- keep[, yvar()]
+        x.exclude <- exclude[, xvar()]
+        y.exclude <- exclude[, yvar()]
+        
+        ggplot(exclude, aes(x.exclude, y.exclude, color = rank)) + 
+          geom_point(shape = 1, alpha = 0.5) +
+          #geom_point(exclude, hape = 21, fill = NA, color = "white", alpha = 0.25) +
+          layer(data =  keep,
+                mapping = aes(x.keep,  y.keep),
+                geom = "point",
+                position = "identity",
+                stat = "identity",
+          )  
+          
+        
     })
     
-    # Toggle points that are clicked (DeleteボタンがTrueのときのみ)
+    
+    # Toggle points that are clicked and show infomation
     observeEvent(input$plot_click, {
-        if (input$deleteMode) {
-            res <- nearPoints(score, input$plot_click, allRows = TRUE)
+        if (input$clickMode == "delete") {
+            res <- nearPoints(score, input$plot_click, xvar(), yvar(), allRows = TRUE)
             vals$keeprows <- xor(vals$keeprows, res$selected_)
         }
+        
+        output$click_info <- renderPrint({
+            # Select just the nearest point within 10 pixels of the click
+            res <- nearPoints(score, input$plot_click, xvar(), yvar(), threshold = 10, maxpoints = 1)
+            res
+        })
     })
     
     # 線形判別の計算
@@ -93,11 +114,11 @@ shinyServer(
     output$plot <- renderPlot({
         if (input$boundary) {
             boundaryData.a.b <- boundaryData()
-            drawPlot() + 
+            drawPlot2() + 
                 geom_abline(intercept = boundaryData.a.b[1], slope = boundaryData.a.b[2])
         }
        else{
-           p <- drawPlot()
+           p <- drawPlot2()
            ldaExe() # pを表示する前に入れないとggplotが消える
            p
        }
@@ -111,43 +132,19 @@ shinyServer(
         switch(input$ylabel, math = "math", english = "english", japanese = "japanese")
     })
     
-    output$click_info <- renderPrint({
-        # Select just the nearest point within 10 pixels of the click
-        res <- nearPoints(score, input$plot_click, xvar(), yvar(), threshold = 10, maxpoints = 1)
-        res
-    })
+    # For storing which rows have been excluded(排除された行を記録)
+    vals <- reactiveValues(
+      #もしかしてExcludeできるのはscore.trainの方だけ？
+      keeprows = rep(TRUE, nrow(score))
+    )
     
-    output$accuracy <- renderTable({
+
+    output$accuracy <- renderTable({ 
         tbl <-  ldaExe()
         tbl <- as.data.frame(tbl)
         colnames(tbl) <- c("正解ラベル","予測ラベル", "データ数")
         tbl
     })
-    
-    # # tableシリーズ
-    # if(0){
-    # output$tbl11 <- renderPrint({
-    #     tbl <-  ldaExe()
-    #     tbl[1,1]
-    # })
-    # output$tbl12 <- renderPrint({
-    #     tbl <-  ldaExe()
-    #     tbl[1,2]
-    # })
-    # output$tbl21 <- renderPrint({
-    #     tbl <-  ldaExe()
-    #     tbl[2,1]
-    # })
-    # output$tbl22 <- renderPrint({
-    #     tbl <-  ldaExe()
-    #     tbl[2, 2]
-    # })
-    # }
-    # For storing which rows have been excluded(排除された行を記録)
-    #values <- reactiveValues(
-        # もしかしてExcludeできるのはscore.trainの方だけ？
-     #   keeprows = rep(TRUE, nrow(score))
-    #) 
 
     
 })

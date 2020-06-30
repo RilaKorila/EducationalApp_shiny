@@ -22,12 +22,6 @@ shinyUI(fluidPage(
             #clickId, hoverIdはggplotでは使用不可
             plotOutput("plot", click = "plot_click"),
             # iPadで使うならhoverできない
-            
-            
-            #textOutput("xlabel_get"),
-            #textOutput("ylabel_get"),
-            
-            #textInput("textIn01",label="Input"),
             hr(),                               
             column(width = 10,
                    h4("Points near click"),
@@ -53,17 +47,6 @@ shinyUI(fluidPage(
             # 精度の表示
             h4("精度"),
             tableOutput("accuracy"),
-            # tags$table(
-            #     tags$tr(
-            #         tags$th("pre"), tags$th("real")
-            #     ),
-            #     tags$tr(
-            #         textOutput("tbl11"), tags$th("tbl12")
-            #     ),
-            #     tags$tr(
-            #         tags$th("tbl21"), tags$th("tbl22")
-            #     ),
-            # ),
             
             hr(),    
             h3("境界線描画", style = "color:skyblue"),
@@ -77,9 +60,12 @@ shinyUI(fluidPage(
             actionButton("HideBoundary", "Hide"),
             hr(),    
             # ボタン
-            h3("データの削除", style = "color:skyblue"),
-            checkboxInput("deleteMode", label = "Delete", FALSE),
-            )
+            #h3("データの削除", style = "color:skyblue"),
+            radioButtons("clickMode", 
+                         label = h3("データの削除",  style = "color:skyblue"),
+                         c( "データ参照" = "normal",
+                            "データ変更" = "delete")),
+            ) 
         
     )
 ))
