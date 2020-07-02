@@ -30,7 +30,7 @@ shinyUI(fluidPage(
         ),
         
         # Show slidebar
-        sidebarPanel(
+        sidebarPanel( # 色の種類はcolors()でみれる
             h3("変数選択", style = "color:skyblue"),
             # 変数選択x軸
             selectInput("xlabel", label = "x軸", 
@@ -42,12 +42,21 @@ shinyUI(fluidPage(
                         c("Math" = "math",
                           "English" = "english",
                           "Japanese" = "japanese")),
-            # 色の種類はcolors()でみれる
+            
+            # -----  データの削除 -----
             hr(),    
-            # 精度の表示
-            h4("精度"),
+            radioButtons("clickMode", 
+                         label = h3("データの削除",  style = "color:skyblue"),
+                         c( "データ参照" = "normal",
+                            "データ変更" = "delete")),
+           
+            # ----- 精度の表示 -----
+            hr(),  
+            h3("分類精度", style = "color:skyblue"),
+            actionButton("calAccuracy", "精度算出"),
             tableOutput("accuracy"),
             
+            # ------ 境界線描画 -----
             hr(),    
             h3("境界線描画", style = "color:skyblue"),
             # 数値入力
@@ -58,13 +67,9 @@ shinyUI(fluidPage(
                          min = 1, max = 100, step = 1),
             actionButton("boundary", "Let's draw!"),
             actionButton("HideBoundary", "Hide"),
-            hr(),    
-            # ボタン
-            #h3("データの削除", style = "color:skyblue"),
-            radioButtons("clickMode", 
-                         label = h3("データの削除",  style = "color:skyblue"),
-                         c( "データ参照" = "normal",
-                            "データ変更" = "delete")),
+            # ------------------------
+            
+           
             ) 
         
     )

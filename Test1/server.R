@@ -73,7 +73,9 @@ shinyServer(
     # 線形判別の計算
     # 返り値：線形判別後の分類精度accuracy
     # 返り値2: table
-    ldaExe <- reactive({
+    ldaExe <- reactive( {
+        # actionButtonに反応するためのダミー変数
+        tmp <- input$calAccuracy
         # データの準備 : テストデータは1,2行目
         score.train <- score[-1:-2,]
         score.test <- score[1:2,]
