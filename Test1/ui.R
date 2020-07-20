@@ -8,9 +8,13 @@
 #
 
 library(shiny)
-
+library(shinyjs)
 # Define UI for application
 shinyUI(fluidPage(
+    # shinyjsを使うことを宣言
+    useShinyjs(),
+    # Introjs用
+    # tags$head(includeHTML("googleAnalytics.html"))
     
     # Application title
     titlePanel("title panel"),
@@ -31,6 +35,9 @@ shinyUI(fluidPage(
         
         # Show slidebar
         sidebarPanel( # 色の種類はcolors()でみれる
+            h3("ユーザー名登録", style = "color:skyblue"),
+            textInput("username", "ユーザー名", placeholder = "Please input your name"),
+            actionButton("registerBtn", "登録" ),
             h3("変数選択", style = "color:skyblue"),
             # 変数選択x軸
             selectInput("xlabel", label = "x軸", 
