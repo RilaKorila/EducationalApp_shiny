@@ -2,7 +2,7 @@ library(readr)
 library(MASS)
 library(ggplot2)
 library(plotly)
-score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv")
+score <- read.csv("/path/to/data.csv")
 
 
 # データの準備 : テストデータは1,2行目
@@ -43,3 +43,11 @@ plot3d(score$math, score$english, score$japanese, col = "red")
 plot3d(score$math, score$english, score$japanese, col = as.integer(score$rank))
 # WebGLに保存するとHTML形式で結果のみ表示できるらしい
  # writeWebGL(width=500, height=550)
+
+# - - - データの抽出 - - -
+logi <- c(FALSE, TRUE, FALSE, FALSE)
+logi <- matrix(logi, nrow = 1, ncol = 4)
+x <- c("a", "b", "c", "d")
+x <- matrix(x, nrow = 1, ncol = 4)
+x[logi == TRUE]
+
