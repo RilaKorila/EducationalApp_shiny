@@ -40,22 +40,28 @@ shinyUI(fluidPage(
             actionButton("registerBtn", "登録" ),
             h3("変数選択", style = "color:skyblue"),
             # 変数選択x軸
+            disabled(
             selectInput("xlabel", label = "x軸", 
                          c("Math" = "math",
                            "English" = "english",
-                           "Japanese" = "japanese")),
+                           "Japanese" = "japanese"))
+            ),
             # 変数選択y軸
+            disabled(
             selectInput("ylabel", label = "y軸", 
                         c("Math" = "math",
                           "English" = "english",
-                          "Japanese" = "japanese")),
+                          "Japanese" = "japanese"))
+            ),
             
             # -----  データの削除 -----
             hr(),    
+            disabled(
             radioButtons("clickMode", 
                          label = h3("データの削除",  style = "color:skyblue"),
                          c( "データ参照" = "normal",
-                            "データ変更" = "delete")),
+                            "データ変更" = "delete"))
+            ),
            
             # ----- 精度の表示 -----
             hr(),  
@@ -77,7 +83,8 @@ shinyUI(fluidPage(
             # ------------------------
             
            
-            ) 
+            )
+        
         
     )
 ))

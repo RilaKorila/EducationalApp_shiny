@@ -16,7 +16,7 @@ library(ggplot2)
 # Define server logic required to draw a histogram
 shinyServer(
     function(input, output) {
-      score <- read.csv("path/to/data.csv", header = TRUE)
+      score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv", header = TRUE)
       # ------  ログ取得用  -------
       #username <- "user1"
       filename <- "test.csv"
@@ -35,6 +35,8 @@ shinyServer(
         new.name <- isolate(input$username)
         new.name
         })
+      
+      # username登録するまで操作できない
       observeEvent(input$registerBtn,{
         username <- input$username
         # ----- ログ取得用  -----
@@ -45,6 +47,12 @@ shinyServer(
         write.table(x, file = filename, append = TRUE, sep = ',',
                     row.names = FALSE, col.names = FALSE)
         # -----------------------
+        
+        # 操作盤のロック解除
+        enable("xlabel")
+        enable("ylabel")
+        enable("clickMode")
+        # 名前の変更をロック
         disable("username")
       })
                    
@@ -81,7 +89,7 @@ shinyServer(
       username <- getUserName()
       date <- format(Sys.time(), "%Y/%m/%d")
       time <- format(Sys.time(), "%H:%M:%OS")
-      x <- matrix(c(username, date, time, "change labels", x.label, y.label),
+      x <- matrix(c(username, date, time, "current labels", x.label, y.label),
                   nrow = 1, ncol = 6)
       write.table(x, file = filename, append = TRUE, sep = ',',
                   row.names = FALSE, col.names = FALSE)
@@ -201,10 +209,10 @@ shinyServer(
     
     # return Name of the x, y
     xvar <- reactive({
-        switch(input$xlabel, math = "math", english = "english", japanese = "japanese")
+      switch(input$xlabel, math = "math", english = "english", japanese = "japanese")
     })
     yvar <- reactive({
-        switch(input$ylabel, math = "math", english = "english", japanese = "japanese")
+      switch(input$ylabel, math = "math", english = "english", japanese = "japanese")
     })
     
     # For storing which rows have been excluded(排除された行を記録)
