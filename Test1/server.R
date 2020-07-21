@@ -16,7 +16,7 @@ library(ggplot2)
 # Define server logic required to draw a histogram
 shinyServer(
     function(input, output) {
-      score <- read.csv("/Users/ayana/shiny/Test1/data/shiny_test.csv", header = TRUE)
+      score <- read.csv("/path/to/data.csv", header = TRUE)
       # ------  ログ取得用  -------
       #username <- "user1"
       filename <- "test.csv"
