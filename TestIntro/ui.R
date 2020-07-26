@@ -37,6 +37,7 @@ shinyUI(fluidPage(
                 div(id="step3", class="well", "element3")
             ))
         ), 
+        
         # sub Panel
         column(4, div(class = "subPanel",
             fluidRow(

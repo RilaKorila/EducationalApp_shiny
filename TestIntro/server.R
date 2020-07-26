@@ -9,8 +9,8 @@ shinyServer(function(input, output, session) {
     session$sendCustomMessage(type = 'startHelp', message = list(""))
   })
   
-  score <- read.csv("/path/to/data.csv", header = TRUE)
   # ------  ログ取得用  -------
+  #username <- getUserName()
   filename <- "test.csv"
   name.col.list <- c("name", "date", "time", "action", "value1", "value2")
   df <- data.frame(matrix(rep(NA, length(name.col.list)), nrow=1))[numeric(0), ]
@@ -20,7 +20,8 @@ shinyServer(function(input, output, session) {
   # ----------------------------
   
   
-  # ユーザー名を取得
+  
+  # -----  ユーザー名を取得  -----
   getUserName <- reactive({
     # 登録ボタンが押された時のみ名前変更
     input$registerBtn
@@ -29,10 +30,11 @@ shinyServer(function(input, output, session) {
     new.name
   })
   
+  # -----  usernameの登録  -----
   observeEvent(input$registerBtn,{
-    username <- input$username
+    user.name <- input$username
     # ----- ログ取得用  -----
-    save_logData("register a username", username, "")
+    save_logData(user.name, "register a username", user.name, "")
     # -----------------------
     
     # 操作盤のロック解除
@@ -45,6 +47,7 @@ shinyServer(function(input, output, session) {
     disable("registerBtn")
   })
   
+  # ----- reactive関数：Plot描画  -----
   drawPlot2 <- reactive({ # Exculsive対応
     # Plot the kept and excluded points as two separate data sets
     keep    <- score[ vals$keeprows, , drop = FALSE]
@@ -59,7 +62,7 @@ shinyServer(function(input, output, session) {
     y.exclude <- exclude[, y.label]
     
     # ----- ログ取得用  -----
-    save_logData("current labels", x.label, y.label)
+    save_logData(getUserName(), "current labels", x.label, y.label)
     # -----------------------
     
     ggplot(exclude, aes(x.exclude, y.exclude, color = rank)) + 
@@ -71,17 +74,15 @@ shinyServer(function(input, output, session) {
             position = "identity",
             stat = "identity",
       )  
-    
-    
   })
   
-  
+  # ------  散布図データをクリック  -----
   # Toggle points that are clicked and show infomation
   observeEvent(input$plot_click, {
     if (input$clickMode == "delete") {
       res <- nearPoints(score, input$plot_click, xvar(), yvar(), allRows = TRUE, maxpoints = 1)
       # ----- ログ取得用  -----
-      save_logData("delete a record",  res[res$selected_ == TRUE, 2], "")
+      save_logData(getUserName(),"delete a record",  res[res$selected_ == TRUE, 2], "")
       # -----------------------
       vals$keeprows <- xor(vals$keeprows, res$selected_)
     }
@@ -90,15 +91,14 @@ shinyServer(function(input, output, session) {
       # Select just the nearest point within 10 pixels of the click
       res <- nearPoints(score, input$plot_click, xvar(), yvar(), threshold = 10, maxpoints = 1)
       # ----- ログ取得用  -----
-      save_logData("reference a record", res[1], "")
+      save_logData(getUserName(),"reference a record", res[1], "")
       # -----------------------
       res[1:4]
     })
   })
   
-  # 線形判別の計算
+  # -----  線形判別の計算  -----
   # 返り値：線形判別後の分類精度accuracy
-  # 返り値2: table
   ldaExe <- reactive( {
     keep    <- score[ vals$keeprows, , drop = FALSE]
     exclude <- score[!vals$keeprows, , drop = FALSE]
@@ -139,14 +139,7 @@ shinyServer(function(input, output, session) {
     #accuracy <- (correct / sum) * 100
   })
   
-  # ActionButtonが押されて初めてboundaryのデータが更新される
-  boundaryData <- eventReactive(input$boundary, {
-    a <- input$intercept
-    b <- input$slope
-    a.b <- c(a, b)
-    a.b
-  })
-  
+  # ----- 散布図描画  ------
   output$plot <- renderPlot({
     p <- drawPlot2()
     ldaExe() # pを表示する前に入れないとggplotが消える
@@ -180,9 +173,19 @@ shinyServer(function(input, output, session) {
   
   # ----- 精度出力  -----
   output$accuracy <- renderTable({ 
-    getAccuracy()
+    acc <- getAccuracy()
+    # ----- ログ取得用  -----
+    save_logData(getUserName(),"acc[1,1], acc[1,2]",  acc[1,3], acc[2,3])
+    save_logData(getUserName(),"acc[2,1], acc[2,2]",  acc[3,3], acc[4,3])
+    # -----------------------
+    acc11 <- c("upper", "upper", acc[1,3])
+    acc12 <- c("lower", "upper", acc[2,3])
+    acc13 <- c("upper", "lower", acc[3,3])
+    acc14 <- c("lower", "lower", acc[4,3])
+    acc <- rbind(acc11, acc12, acc13, acc14)
+    acc <- as.data.frame(acc)
+    colnames(acc) <- c("正解ラベル","予測ラベル", "データ数")
+    acc
   })
-  
-  
   
 })
