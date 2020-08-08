@@ -1,0 +1,10 @@
+step,element,intro,position
+1,#step1,plot,bottom
+2,#step2,Detailed Information,bottom
+3,#step3,text step 3,bottom
+4,#step4,Register user name,bottom
+5,#step5,Select X label,bottom
+6,#step6,Select Y label,bottom
+7,#step7,Change a mode,bottom
+8,#step8,text step 8,bottom
+9,#step9,text step 9,bottom
