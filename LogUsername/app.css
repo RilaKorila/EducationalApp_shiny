@@ -1,0 +1,36 @@
+button{
+  width: 100px;
+}
+
+.row{
+  margin:25px;
+}
+
+.mainPanel{
+  padding:10px;
+  height:700px;
+  background-color: white;
+}
+
+.subPanel{
+  padding:10px;
+  height:700px;
+  background-color: white;
+}
+
+.well{
+  text-align: left;
+  font-size:100%;
+}
+
+
+.flexcontainer {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
